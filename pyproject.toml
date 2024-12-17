@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "matrix-google-chat-hook"
+version = "0.1.0"
+description = ""
+authors = ["tropxy <andre14x@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+matrix-nio = {extras = ["e2e"], version = "^0.25.2"}  # Include e2e extras
+requests = "^2.32.3"  # Add other dependencies if needed
+python-dotenv = "^1.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
