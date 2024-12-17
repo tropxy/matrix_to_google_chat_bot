@@ -1,4 +1,37 @@
-# Service Management
+## Environmental Variables
+
+The main.py will check the .env file for the following envs
+
+```python
+# LOGGER LEVEL
+LOG_LEVEL = os.getenv("LOG_LEVEL", logging.INFO)
+LOG_FILE = "/tmp/matrix_to_google_chat_hook.log"
+# Matrix Home server
+MATRIX_HOMESERVER = os.getenv("MATRIX_HOMESERVER")
+# Matrix User credentials
+MATRIX_USER = os.getenv("MATRIX_USER")
+MATRIX_PASSWORD = os.getenv("MATRIX_PASSWORD")
+# Matrix Base URL
+MATRIX_BASE_URL = os.getenv("MATRIX_BASE_URL")
+# Chat Room ID that we want specifically to listen to
+MATRIX_VALEO_ROOM = os.getenv("MATRIX_VALEO_ROOM")
+# E2E keys related to the user account and necessary
+# for the bot to be trusted
+MATRIX_E2E_KEYS_FILE = os.getenv("MATRIX_E2E_KEYS_FILE")
+MATRIX_E2E_KEYS_FILE_PASS = os.getenv("MATRIX_E2E_KEYS_FILE_PASS")
+# Location of where to save the NoSQL DB to
+MATRIX_DB_LOCATION = os.getenv("MATRIX_DB_LOCATION")
+# Google Chat webhook URL
+GOOGLE_CHAT_WEBHOOK = os.getenv("GOOGLE_CHAT_WEBHOOK")
+```
+
+Be sure to have those in the .env file.
+For the `MATRIX_E2E_KEYS_FILE` one, the user can get it's E2E keys, by going to the
+Matrix UI, click on the user -> Security&Privacy -> Cryptography -> Export E2E room keys.
+Add a password to the file and then set the location with that file and its pass using
+the respective envs.
+
+## Service Management
 
 The bot is runnig in a Launchctl task
 The task definition is defined here:
@@ -38,19 +71,19 @@ As eviedent, the task points to the main script that starts the matrix bot, loca
 
 It also outputs the logs to a file in: "/tmp/matrix_to_google_chat_hook.log"
 
-## Reload and start the script
+### Reload and start the script
 
 `launchctl load ~/Library/LaunchAgents/com.matrix_to_google_chat_hook.plist`
 
-## Stop the script
+### Stop the script
 
 `launchctl unload ~/Library/LaunchAgents/com.matrix_to_google_chat_hook.plist`
 
-## Check if the script is running
+### Check if the script is running
 
 launchctl list | grep com.matrix_to_google_chat_hook
 
-## Check the logs contents
+### Check the logs contents
 
 1. log file
    `tail -f /tmp/matrix_to_google_chat_hook.log`
@@ -58,7 +91,7 @@ launchctl list | grep com.matrix_to_google_chat_hook
 2. Error log file
    `tail -f /tmp/matrix_to_google_chat_hook_error.log`
 
-# Solution for the issue with the installation of the e2e extra for the matrix-nio
+## Solution for the issue with the installation of the e2e extra for the matrix-nio
 
 Link to chatgpt: https://chatgpt.com/share/676189da-d1d4-8004-81bb-a49d427624b3
 
