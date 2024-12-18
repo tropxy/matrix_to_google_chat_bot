@@ -176,11 +176,9 @@ It should throw no errors when importing.
 ### References
 
 1. matrix-nio repo
-   It contains some crumbs related to this issue as well here:
-   [Link][https://github.com/matrix-nio/matrix-nio?tab=readme-ov-file#installation]
+   It contains some crumbs related to this issue as well [here](https://github.com/matrix-nio/matrix-nio?tab=readme-ov-file#installation)
 
 Which points to the docker folder where a script called `build_and_install_libolm.sh`
 exists which contains instructions to install and build the olm library
 
-2.Chatgpt thread where I got to the final solution
-[Link][https://chatgpt.com/share/676189da-d1d4-8004-81bb-a49d427624b3]
+2. Chatgpt thread where I got to the final solution [here](https://chatgpt.com/share/676189da-d1d4-8004-81bb-a49d427624b3)
