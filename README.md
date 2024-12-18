@@ -13,8 +13,10 @@ MATRIX_USER = os.getenv("MATRIX_USER")
 MATRIX_PASSWORD = os.getenv("MATRIX_PASSWORD")
 # Matrix Base URL
 MATRIX_BASE_URL = os.getenv("MATRIX_BASE_URL")
+# Environmental to force receiving all messages from any channel
+MATRIX_GET_ALL_MESSAGES = os.getenv("MATRIX_GET_ALL_MESSAGES", False)
 # Chat Room ID that we want specifically to listen to
-MATRIX_VALEO_ROOM = os.getenv("MATRIX_VALEO_ROOM")
+MATRIX_FILTER_FOR_ROOM_ID = os.getenv("MATRIX_FILTER_FOR_ROOM_ID")
 # E2E keys related to the user account and necessary
 # for the bot to be trusted
 MATRIX_E2E_KEYS_FILE = os.getenv("MATRIX_E2E_KEYS_FILE")
