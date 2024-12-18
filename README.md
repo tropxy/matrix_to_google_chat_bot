@@ -47,7 +47,7 @@ check section #troubleshooting.
 2. After a successful installation of the packages, you can run the project locally.
 
 ```shell
-> python maina.py
+> python main.py
 2024-12-18 11:11:25,027 - INFO - Bot Logged into Matrix
 2024-12-18 11:11:30,542 - INFO - Starting sync...
 2024-12-18 11:11:31,269 - INFO - Initial sync completed. Listening for new messages...
