@@ -33,10 +33,31 @@ Matrix UI, click on the user -> Security&Privacy -> Cryptography -> Export E2E r
 Add a password to the file and then set the location with that file and its pass using
 the respective envs.
 
-## Service Management
+## How to run the project?
 
-I am running the bot in MacOS, so I will be using Launchctl, but any other service
-management should do theb job like systemd or some Yocto recipe.
+1. Use a virtual env if you like and Install the depenencies using poetry
+   `> poetry update`
+
+As the project uses the `e2e` extra from `matrix-nio`, it depends on the python-olm
+package. However, when attempting installing this package, an error my occur while the
+package is being compiled from C++ to python. This is due to a bug in the C++ code or
+can also be because of the C++ compiler used in your machine. If you face those issues
+check section #troubleshooting.
+
+2. After a successful installation of the packages, you can run the project locally.
+
+```shell
+> python maina.py
+2024-12-18 11:11:25,027 - INFO - Bot Logged into Matrix
+2024-12-18 11:11:30,542 - INFO - Starting sync...
+2024-12-18 11:11:31,269 - INFO - Initial sync completed. Listening for new messages...
+```
+
+You can also run the project as a service.
+I am running the bot in MacOS, so the following instructions refer to Launchctl,
+but any other service management should do theb job like systemd or some Yocto recipe.
+
+## Service Management [MacOS]
 
 The task definition in my case was created here:
 /Users/andre/Library/LaunchAgents/com.matrix_to_google_chat_hook.plist
@@ -107,9 +128,9 @@ launchctl list | grep com.matrix_to_google_chat_hook
 2024-12-18 11:11:31,269 - INFO - Initial sync completed. Listening for new messages...
 ```
 
-## Solution for the issue with the installation of the e2e extra for the matrix-nio
+# Troubleshooting
 
-Link to chatgpt: https://chatgpt.com/share/676189da-d1d4-8004-81bb-a49d427624b3
+## Solution for the issue with the installation of the e2e extra for the matrix-nio
 
 Solution: Use a Fixed Version of python-olm or Apply the Patch
 We need to manually patch the source code before installation.
@@ -144,8 +165,22 @@ CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" python setup.py build
 CFLAGS="-I/usr/local/include" LDFLAGS="-L/usr/local/lib" python setup.py install
 ```
 
+Note: you may need to adapt the CFLAGS to point to the path of your Clang compiler
+
 4. Verify the Installation
    Confirm that python-olm is installed:
 
-`python -c "import olm; print(olm.__version__)"`
-It should now display 3.2.16.
+`python -c "import olm`
+It should throw no errors when importing.
+
+### References
+
+1. matrix-nio repo
+   It contains some crumbs related to this issue as well here:
+   [Link][https://github.com/matrix-nio/matrix-nio?tab=readme-ov-file#installation]
+
+Which points to the docker folder where a script called `build_and_install_libolm.sh`
+exists which contains instructions to install and build the olm library
+
+2.Chatgpt thread where I got to the final solution
+[Link][https://chatgpt.com/share/676189da-d1d4-8004-81bb-a49d427624b3]
