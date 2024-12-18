@@ -35,9 +35,13 @@ the respective envs.
 
 ## Service Management
 
-The bot is runnig in a Launchctl task
-The task definition is defined here:
+I am running the bot in MacOS, so I will be using Launchctl, but any other service
+management should do theb job like systemd or some Yocto recipe.
+
+The task definition in my case was created here:
 /Users/andre/Library/LaunchAgents/com.matrix_to_google_chat_hook.plist
+
+And these are the contents of the file:
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
@@ -96,11 +100,12 @@ launchctl list | grep com.matrix_to_google_chat_hook
 
 ### Check the logs contents
 
-1. log file
-   `tail -f /tmp/matrix_to_google_chat_hook.log`
-
-2. Error log file
-   `tail -f /tmp/matrix_to_google_chat_hook_error.log`
+```shell
+> tail -f /tmp/matrix_to_google_chat_hook.log
+2024-12-18 11:11:25,027 - INFO - Bot Logged into Matrix
+2024-12-18 11:11:30,542 - INFO - Starting sync...
+2024-12-18 11:11:31,269 - INFO - Initial sync completed. Listening for new messages...
+```
 
 ## Solution for the issue with the installation of the e2e extra for the matrix-nio
 
