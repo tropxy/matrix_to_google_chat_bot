@@ -60,7 +60,7 @@ The task definition is defined here:
     <string>/tmp/matrix_to_google_chat_hook.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/tmp/matrix_to_google_chat_hook_error.log</string>
+    <string>/tmp/matrix_to_google_chat_hook.log</string>
 
     <key>KeepAlive</key>
     <true/>
@@ -68,10 +68,19 @@ The task definition is defined here:
 </plist>
 ```
 
-As eviedent, the task points to the main script that starts the matrix bot, located at:
+As eviedent, the task points to the main script that starts the matrix bot, located in
+case my at:
 "/Users/andre/Devel/maubot_matrix/matrix_google_chat_hook/matrix_to_google_chat.py"
 
-It also outputs the logs to a file in: "/tmp/matrix_to_google_chat_hook.log"
+My .env file with the Environmental variables is present in the same location as the
+script.
+
+Ensure to also specify the path to the python interpreter that will run the script.
+In my case it is a virtual env python interpreter.
+
+The service also outputs the logs to a file in: "/tmp/matrix_to_google_chat_hook.log"
+In main.py the logging library is configured to send the logs to both the regular stdout
+but also to the specified file.
 
 ### Reload and start the script
 
