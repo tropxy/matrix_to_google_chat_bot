@@ -22,7 +22,7 @@ MATRIX_PASSWORD = os.getenv("MATRIX_PASSWORD")
 # Matrix Base URL
 MATRIX_BASE_URL = os.getenv("MATRIX_BASE_URL")
 # Environmental to force receiving all messages from any channel
-MATRIX_GET_ALL_MESSAGES = os.getenv("MATRIX_GET_ALL_MESSAGES", False)
+MATRIX_GET_ALL_MESSAGES = os.getenv("MATRIX_GET_ALL_MESSAGES", False).lower() == "true"
 # Chat Room ID that we want specifically to listen to
 MATRIX_FILTER_FOR_ROOM_ID = os.getenv("MATRIX_FILTER_FOR_ROOM_ID")
 # E2E keys related to the user account and necessary
@@ -52,7 +52,7 @@ logger = logging.getLogger()
 
 async def message_listener():
     global initial_sync_complete
-    client = AsyncClient(MATRIX_HOMESERVER, MATRIX_USER, store_path=MATRIX_DB_LOCATION)
+    client = AsyncClient(MATRIX_HOMESERVER, MATRIX_USER, device_id="google_chat_bot", store_path=MATRIX_DB_LOCATION)
     await client.login(MATRIX_PASSWORD)
     logger.info("Bot Logged into Matrix")
     # This imports the E2E keys extracted from my user account at app.element.io, which allow this bot to be trusted and be able
@@ -83,15 +83,19 @@ async def message_listener():
             return
         # Just send notifications to the google chat if the messages are coming from
         # the Valeo chat group (we dont want to expose private ones)
-        if room.room_id != MATRIX_FILTER_FOR_ROOM_ID and not MATRIX_GET_ALL_MESSAGES:
+        logger.info(f"Message received from room id {room.room_id}")
+        if (room.room_id != MATRIX_FILTER_FOR_ROOM_ID) and (MATRIX_GET_ALL_MESSAGES is False):
+            logger.info(f"Message {event.body} from Room {room.display_name}, Ignored")
             return
         try:
             if isinstance(event, RoomMessageText):
                 # Handle plaintext messages
+                logger.debug(f"Received {event.body} from Room {room.display_name}, processing...")
                 await prepare_and_send_message(event, room)
             else:
                 # Handle other events (e.g., encrypted)
                 try:
+                    logger.debug(f"Received Encrypted {event.body} from Room {room.display_name}, processing...")
                     decrypted_event = await client.decrypt_event(event)
                     if decrypted_event and hasattr(decrypted_event, "body"):
                         await prepare_and_send_message(decrypted_event, room)
@@ -114,6 +118,13 @@ async def message_listener():
         if not initial_sync_complete:
             logger.info("Initial sync completed. Listening for new messages...")
             initial_sync_complete = True
+            #await client.room_send(
+                # # Watch out! If you join an old room you'll see lots of old messages
+                # room_id="!FiDziuxXnATHZcWjUW:matrix.org",
+                # message_type="m.room.message",
+                # content={"msgtype": "m.text", "body": "Hello world!"},
+            # )
+
 
     # Register callbacks
     client.add_event_callback(message_callback, RoomMessageText)
@@ -129,9 +140,9 @@ def send_to_google_chat(message):
     data = {"text": message}
     response = requests.post(GOOGLE_CHAT_WEBHOOK, json=data)
     if response.status_code == 200:
-        logger.debug(f"Message sent to Google Chat: {message}")
+        logger.info(f"✅ - Message sent to Google Chat: {message}")
     else:
-        logger.error(f"Failed to send message: {response.text}")
+        logger.error(f"❌ - Failed to send message: {response.text}")
 
 # Start the script
 asyncio.run(message_listener())
