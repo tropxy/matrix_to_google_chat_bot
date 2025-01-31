@@ -1,12 +1,15 @@
 import sys
 import logging
-from logging import StreamHandler, FileHandler
 import requests
-from nio import AsyncClient, RoomMessageText, MatrixRoom, SyncResponse
-from nio.events.room_events import Event
 import asyncio
-from dotenv import load_dotenv
 import os
+
+from nio import AsyncClient, RoomMessageText, MatrixRoom, SyncResponse, ClientConfig
+from nio.events.room_events import Event
+from typing import Optional
+from dotenv import load_dotenv
+from logging import StreamHandler, FileHandler
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -124,14 +127,81 @@ async def message_listener():
                 # message_type="m.room.message",
                 # content={"msgtype": "m.text", "body": "Hello world!"},
             # )
+            await trust_devices("@romain_valeo:matrix.org")
+            await trust_devices("@damien-valeo:matrix.org")
+            await trust_devices("@shalinnijel:matrix.org")
+            await trust_devices("@andre_d:matrix.org")
+            await trust_devices("@hmercier:im.iot.bzh")
+            await trust_devices("@fulup:im.iot.bzh")
+
+    async def trust_devices(user_id: str, device_list: Optional[str] = None) -> None:
+        """Trusts the devices of a user.
+
+        If no device_list is provided, all of the users devices are trusted. If
+        one is provided, only the devices with IDs in that list are trusted.
+
+        Arguments:
+            user_id {str} -- the user ID whose devices should be trusted.
+
+        Keyword Arguments:
+            device_list {Optional[str]} -- The full list of device IDs to trust
+                from that user (default: {None})
+        """
+
+        logger.info(f"{user_id}'s device store: {client.device_store[user_id]}")
+
+        # The device store contains a dictionary of device IDs and known
+        # OlmDevices for all users that share a room with us, including us.
+
+        # We can only run this after a first sync. We have to populate our
+        # device store and that requires syncing with the server.
+        for device_id, olm_device in client.device_store[user_id].items():
+            if device_list and device_id not in device_list:
+                # a list of trusted devices was provided, but this ID is not in
+                # that list. That's an issue.
+                logger.info(
+                    f"Not trusting {device_id} as it's not in {user_id}'s pre-approved list."
+                )
+                continue
+
+            # if user_id == client.user_id and device_id == client.device_id:
+                # # We cannot explicitly trust the device andre is using
+                # continue
+
+            client.verify_device(olm_device)
+            logger.info(f"Trusting {device_id} from user {user_id}")
+
+    ## This Key verification code is not working (the EVent is never received here...)
+    # But check here for a possible solution:
+    #    https://github.com/matrix-nio/matrix-nio/issues/430
+    # from nio import KeyVerificationStart, KeyVerificationKey, KeyVerificationMac, KeyVerificationEvent
+
+    # async def verification_callback(event: KeyVerificationEvent, room: MatrixRoom):
+        # logger.info(f"Received verification request from {event.sender}")
+        # # Automatically accept verification from a trusted user
+        # if event.sender == "@andre_d:matrix.org":  # Replace with your trust condition
+            # accept_event = KeyVerificationAccept.from_key_verification_start(
+                # event,
+                # method="m.sas.v1",  # SAS method, adjust if using a different method
+                # key_agreement_protocols=["curve25519-hkdf-sha256"],
+                # hashes=["sha256"],
+                # message_authentication_codes=["hkdf-hmac-sha256"],
+                # short_authentication_string=["decimal"],
+            # )
+            # await client.send_to_device(accept_event)
+
+        # # Further steps would involve handling the exchanged keys and finalizing the verification
+        # # This is typically handled by `matrix-nio` but may require additional customization
 
 
     # Register callbacks
     client.add_event_callback(message_callback, RoomMessageText)
     client.add_response_callback(on_sync_completed)
-
+    # Register the callback for key verification start events
+    # client.add_event_callback(verification_callback, KeyVerificationEvent)
     logger.info("Starting sync...")
-    await client.sync_forever(timeout=30000)
+    await client.sync_forever(timeout=29999)
+
 
 
 
